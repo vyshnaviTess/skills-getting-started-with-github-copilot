@@ -20,12 +20,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Render main card content and a participants container we will populate below
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <div class="participants">
+            <h5>Participants</h5>
+            <div class="participants-container" aria-live="polite"></div>
+          </div>
         `;
+
+        // Populate participants list (bulleted). Handles string entries or objects with name/email.
+        const participantsContainer = activityCard.querySelector(".participants-container");
+        if (details.participants && details.participants.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            // graceful handling for different participant shapes
+            if (typeof p === "string") {
+              li.textContent = p;
+            } else if (p && typeof p === "object") {
+              li.textContent = p.name || p.email || JSON.stringify(p);
+            } else {
+              li.textContent = String(p);
+            }
+            ul.appendChild(li);
+          });
+          participantsContainer.appendChild(ul);
+        } else {
+          const none = document.createElement("p");
+          none.className = "no-participants";
+          none.textContent = "No participants yet. Be the first to sign up!";
+          participantsContainer.appendChild(none);
+        }
 
         activitiesList.appendChild(activityCard);
 
